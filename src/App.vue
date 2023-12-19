@@ -21,6 +21,7 @@ type GameServer = {
 };
 
 const apiUrl = 'https://publicapi.battlebit.cloud/Servers/GetServerList';
+
 let gameServers = ref<GameServer[]>([]);
 
 onMounted(async () => {
@@ -32,7 +33,6 @@ onMounted(async () => {
     console.log('Failed to receive data ', error);
   }
 });
-
 
 let sortByPlayersBackwards = false;
 const sortByPlayers = () => {
@@ -83,23 +83,35 @@ const sortByMapSize = () => {
   }
 }
 
+let sortByPlayersInQueueBackwards = false;
+const sortByPlayersInQueue = () => {
+  if(sortByPlayersInQueueBackwards)
+  {
+    gameServers.value = gameServers.value.sort((a,b) => a.QueuePlayers - b.QueuePlayers)
+    sortByPlayersInQueueBackwards = false;
+  } else {
+    gameServers.value = gameServers.value.sort((a,b) => b.QueuePlayers - a.QueuePlayers)
+    sortByPlayersInQueueBackwards = true;
+  }
+}
+
 </script>
 
 <template>
   <div class="container">
-    <h1> Battlebit Servers </h1>
+    <h1> Battlebit Servers {{gameServers.length}} </h1>
     <div class="buttons">
-      <button @click="sortByHz"> Hz</button>
-      <button @click="sortByPlayers"> Players</button>
-      <button @click="sortByMapSize"> Map Size</button>
-
+      <button @click="sortByHz"> Hz </button>
+      <button @click="sortByPlayers"> Players </button>
+      <button @click="sortByMapSize"> Map Size </button>
+      <button @click="sortByPlayersInQueue"> Player's in queue </button>
     </div>
 
     <div>
       <div class="servers" v-for="(server, index) in gameServers" :key="index">
         <ServerCard
             :Name="server.Name"
-            :Map="server.Map"
+            :mapName="server.Map"
             :MapSize="server.MapSize"
             :Gamemode="server.Gamemode"
             :Region="server.Region"
@@ -120,6 +132,14 @@ const sortByMapSize = () => {
 
 <style scoped>
 
+img{
+  max-width: 20rem;
+  margin: 5rem;
+
+  color: red;
+  font-size: 4rem;
+  border-radius: 1rem;
+}
 
 h1 {
   color: white;
@@ -140,7 +160,6 @@ h1 {
 
   margin: 0;
   padding: 0;
-
 }
 
 button {
